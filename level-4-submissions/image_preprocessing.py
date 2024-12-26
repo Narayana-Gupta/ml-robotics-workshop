@@ -1,36 +1,49 @@
-import os
-import zipfile
 import cv2
+import zipfile
+import os
 import numpy as np
 from pathlib import Path
 
-ZIP_FILE = 'images.zip'
-EXTRACT_DIR = 'resized_images'
+def extract_images(zip_file, extract_dir):
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        zip_ref.extractall(extract_dir)
 
-Path(EXTRACT_DIR).mkdir(parents=True, exist_ok=True)
+def process_image(image):
+    resized_image = cv2.resize(image, (128, 128))
+    normalized_image = resized_image / 255.0
+    blurred_image = cv2.GaussianBlur(normalized_image, (5, 5), 0)
+    return (blurred_image * 255).astype(np.uint8)
 
-with zipfile.ZipFile(ZIP_FILE, 'r') as zip_ref:
-    zip_ref.extractall(EXTRACT_DIR)
+def save_processed_image(image, output_path):
+    cv2.imwrite(output_path, image)
 
-OUTPUT_DIR = 'processed_images'
-Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
+def main():
+    zip_file = 'images.zip'
+    extract_dir = 'resized_images'
+    output_dir = 'processed_images'
 
-for file in os.listdir(EXTRACT_DIR):
-    img_file_path = os.path.join(EXTRACT_DIR, file)
-    
-    if os.path.isfile(img_file_path):
-        image = cv2.imread(img_file_path)
+    Path(extract_dir).mkdir(parents=True, exist_ok=True)
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    extract_images(zip_file, extract_dir)
+
+    for file in os.listdir(extract_dir):
+        img_file_path = os.path.join(extract_dir, file)
         
-        if image is None:
-            print(f"Failed to load image: {file}")
-            continue
-        
-        resized_image = cv2.resize(image, (128, 128))
-        normalized_image = resized_image / 255.0
-        blurred_image = cv2.GaussianBlur(normalized_image, (5, 5), 0)
-        output_image = (blurred_image * 255).astype(np.uint8)
-        output_path = os.path.join(OUTPUT_DIR, file)
-        cv2.imwrite(output_path, output_image)
-        print(f"Processed image saved: {output_path}")
+        if os.path.isfile(img_file_path):
+            image = cv2.imread(img_file_path)
+            
+            if image is None:
+                print(f"Failed to load image: {file}")
+                continue
 
-print("Image processing completed!")
+            processed_image = process_image(image)
+            output_path = os.path.join(output_dir, file)
+            save_processed_image(processed_image, output_path)
+
+            print(f"Processed image saved: {output_path}")
+
+    print("Image processing completed!")
+
+if __name__ == "__main__":
+    main()
