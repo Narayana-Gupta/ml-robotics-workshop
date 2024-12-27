@@ -21,5 +21,7 @@ Findings:
 - The classification model demonstrated good accuracy and was effective in predicting the correct labels.
 - Precision and recall scores show balanced performance, but some challenges were observed in distinguishing between warning and critical labels.
 - The confusion matrix confirmed that while the model excelled at identifying normal and critical states, it had a few misclassifications in the warning category.
+
+
 ![image](https://github.com/user-attachments/assets/71a89932-f0a4-4d2e-aed9-9e30aeae6ec8)
 ![image](https://github.com/user-attachments/assets/4e07d828-681a-4c5a-87bd-8c01f7f87bdd)
